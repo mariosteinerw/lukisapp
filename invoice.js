@@ -44,13 +44,14 @@ const VAT_PERMILLE = 81;
 // entered becomes the default for the next month. The fallbacks apply only to a
 // browser that has never had them set.
 const PRICE_KEY = "lukis.prices";
-const DEFAULT_PRICES = { bigblue: 100, doubleair: 170, fv: 33 };
+const DEFAULT_PRICES = { bigblue: 100, doubleair: 170, fv: 33, fahrt: 0 };
 
 // Which booking categories roll up into which invoice line.
 const LINES = [
   { key: "bigblue", label: "Tandemflug Big Blue", categories: ["PGI", "VKPI"] },
   { key: "doubleair", label: "Tandemflug Double Air", categories: ["DA PGI", "DA VKPI"] },
   { key: "fv", label: "Tandemflug F+V", categories: null }, // not logged -- entered by hand
+  { key: "fahrt", label: "Fahrt", categories: ["Fahrt"] },
 ];
 
 // Column order for the extract. Taken from LINES rather than from app.js, which
@@ -238,6 +239,7 @@ function syncCounts() {
   const month = document.getElementById("inv-month").value;
   document.getElementById("inv-count-bigblue").value = countFor("bigblue", month);
   document.getElementById("inv-count-doubleair").value = countFor("doubleair", month);
+  document.getElementById("inv-count-fahrt").value = countFor("fahrt", month);
 }
 
 function restorePrices() {
