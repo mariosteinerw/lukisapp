@@ -37,7 +37,10 @@ import { initInvoice, setInvoiceEntries, setInvoiceSettings, fitPreview } from "
 
 // The four flight categories. Each becomes a quick-book button and an option in
 // the edit dropdown. Add or rename here to change them everywhere.
-const CATEGORIES = ["PGI", "VKPI", "DA PGI", "DA VKPI"];
+// "Fahrt" is a drive, not a flight: it is billed on its own invoice line but
+// left out of the flight totals and the stats.
+const CATEGORIES = ["PGI", "VKPI", "DA PGI", "DA VKPI", "Fahrt"];
+const NOT_A_FLIGHT = "Fahrt";
 
 // Seed list only. The wings in use are kept in Firestore so a new one can be
 // added from the Log view without a deploy; this is what a browser starts from
@@ -61,6 +64,7 @@ const CATEGORY_COLORS = {
   VKPI: "#0284c7",
   "DA PGI": "#7c3aed",
   "DA VKPI": "#9333ea",
+  Fahrt: "#059669",
 };
 
 const APP_NAME = "Lukis";
@@ -404,7 +408,7 @@ function updateCategoryCounts(entries) {
     if (formatDate(entry.savedAt) !== today) continue;
     const category = entry.category || "—";
     counts.set(category, (counts.get(category) || 0) + 1);
-    total += 1; // counted here, not off the buttons, so a retired category still shows up
+    if (category !== NOT_A_FLIGHT) total += 1; // counted here, not off the buttons, so a retired category still shows up
   }
   for (const btn of document.querySelectorAll(".cat-btn")) {
     btn.querySelector(".cat-count").textContent = counts.get(btn.dataset.category) || "";
@@ -615,7 +619,7 @@ function setView(view) {
 
 function renderEntries(entries) {
   updateCategoryCounts(entries);
-  renderStats(entries);
+  renderStats(entries.filter((e) => e.category !== NOT_A_FLIGHT));
   setInvoiceEntries(entries);
   applyDefaultGlider();
 
