@@ -1,0 +1,34 @@
+// TEMPLATE -- DO NOT PUBLISH THIS FILE AS IT STANDS.
+//
+// The address below is a placeholder. Publishing this verbatim locks the real
+// account out of its own data: every read and write is denied, and the app
+// reports "Missing or insufficient permissions".
+//
+// What to publish instead: firestore.rules.local, which holds the real
+// addresses and is excluded from the repository. Copy this file to that name
+// and replace the address if it does not exist yet.
+//
+// Google sign-in authenticates ANY Google account, so access is restricted
+// here: only allow-listed addresses may use the app, and each may read and
+// write only its own flights and invoice details. Everyone else is denied.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAllowedUser() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'you@example.com'
+          // , 'friend@example.com'
+        ];
+    }
+    match /users/{uid}/entries/{entryId} {
+      allow read, write: if isAllowedUser() && request.auth.uid == uid;
+    }
+    // Invoice party data -- IBAN, addresses, the client's mail address. It lives
+    // here rather than in the app source because that source is served publicly.
+    match /users/{uid}/settings/{docId} {
+      allow read, write: if isAllowedUser() && request.auth.uid == uid;
+    }
+  }
+}
