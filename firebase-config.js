@@ -4,10 +4,10 @@
 // is controlled by Firebase Authentication and Firestore security rules, not by
 // this key (it only identifies which Firebase project to talk to).
 export const firebaseConfig = {
-  apiKey: "HIER_EINTRAGEN",
-  authDomain: "DEIN-PROJEKT.firebaseapp.com",
-  projectId: "DEIN-PROJEKT",
-  storageBucket: "DEIN-PROJEKT.firebasestorage.app",
-  messagingSenderId: "HIER_EINTRAGEN",
-  appId: "HIER_EINTRAGEN",
+  apiKey: "AIzaSyD93MgafESHcA_AUr0BoxJKL_7cCnPY138",
+  authDomain: "marios-ccb2e.firebaseapp.com",
+  projectId: "marios-ccb2e",
+  storageBucket: "marios-ccb2e.firebasestorage.app",
+  messagingSenderId: "553311816591",
+  appId: "1:553311816591:web:fe0ed5ed81efbfa09599fa",
 };
