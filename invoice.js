@@ -44,7 +44,7 @@ const VAT_PERMILLE = 81;
 // entered becomes the default for the next month. The fallbacks apply only to a
 // browser that has never had them set.
 const PRICE_KEY = "lukis.prices";
-const DEFAULT_PRICES = { bigblue: 100, doubleair: 170, fv: 33, fahrt: 0 };
+const DEFAULT_PRICES = { bigblue: 100, doubleair: 170, fv: 33, fahrt: 0, lead: 0 };
 
 // Which booking categories roll up into which invoice line.
 const LINES = [
@@ -52,6 +52,7 @@ const LINES = [
   { key: "doubleair", label: "Tandemflug Double Air", categories: ["DA PGI", "DA VKPI"] },
   { key: "fv", label: "Tandemflug F+V", categories: null }, // not logged -- entered by hand
   { key: "fahrt", label: "Fahrt", categories: ["Fahrt"] },
+  { key: "lead", label: "Lead Tagespauschale", categories: ["Lead"] },
 ];
 
 // Column order for the extract. Taken from LINES rather than from app.js, which
@@ -235,11 +236,23 @@ function countFor(key, month) {
 
 // Refills the counts from the bookings of the selected month. F+V is left alone
 // -- it is not derived from anything.
+// Lead is a daily flat rate: a day counts once, however often it was booked.
+function countDays(category, month) {
+  const days = new Set();
+  for (const entry of entriesCache) {
+    const d = new Date(entry.savedAt);
+    if (Number.isNaN(d.getTime()) || monthKey(d) !== month || entry.category !== category) continue;
+    days.add(dayKey(d));
+  }
+  return days.size;
+}
+
 function syncCounts() {
   const month = document.getElementById("inv-month").value;
   document.getElementById("inv-count-bigblue").value = countFor("bigblue", month);
   document.getElementById("inv-count-doubleair").value = countFor("doubleair", month);
   document.getElementById("inv-count-fahrt").value = countFor("fahrt", month);
+  document.getElementById("inv-count-lead").value = countDays("Lead", month);
 }
 
 function restorePrices() {
