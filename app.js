@@ -37,10 +37,11 @@ import { initInvoice, setInvoiceEntries, setInvoiceSettings, fitPreview } from "
 
 // The four flight categories. Each becomes a quick-book button and an option in
 // the edit dropdown. Add or rename here to change them everywhere.
-// "Fahrt" is a drive, not a flight: it is billed on its own invoice line but
-// left out of the flight totals and the stats.
-const CATEGORIES = ["PGI", "VKPI", "DA PGI", "DA VKPI", "Fahrt"];
-const NOT_A_FLIGHT = "Fahrt";
+// "Fahrt" (a drive) and "Lead" (a day as lead, paid as a daily flat rate) are
+// not flights: each is billed on its own invoice line but left out of the
+// flight totals and the stats.
+const CATEGORIES = ["PGI", "VKPI", "DA PGI", "DA VKPI", "Fahrt", "Lead"];
+const NOT_FLIGHTS = ["Fahrt", "Lead"];
 
 // The fixed trip times of the day. A flight is booked against one of these
 // rather than a free clock time.
@@ -92,6 +93,7 @@ const CATEGORY_COLORS = {
   "DA PGI": "#7c3aed",
   "DA VKPI": "#9333ea",
   Fahrt: "#059669",
+  Lead: "#d97706",
 };
 
 const APP_NAME = "Lukis";
@@ -435,7 +437,7 @@ function updateCategoryCounts(entries) {
     if (formatDate(entry.savedAt) !== today) continue;
     const category = entry.category || "—";
     counts.set(category, (counts.get(category) || 0) + 1);
-    if (category !== NOT_A_FLIGHT) total += 1; // counted here, not off the buttons, so a retired category still shows up
+    if (!NOT_FLIGHTS.includes(category)) total += 1; // counted here, not off the buttons, so a retired category still shows up
   }
   for (const btn of document.querySelectorAll(".cat-btn")) {
     btn.querySelector(".cat-count").textContent = counts.get(btn.dataset.category) || "";
@@ -650,7 +652,7 @@ function setView(view) {
 
 function renderEntries(entries) {
   updateCategoryCounts(entries);
-  renderStats(entries.filter((e) => e.category !== NOT_A_FLIGHT));
+  renderStats(entries.filter((e) => !NOT_FLIGHTS.includes(e.category)));
   setInvoiceEntries(entries);
   applyDefaultGlider();
 
