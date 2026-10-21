@@ -42,6 +42,33 @@ import { initInvoice, setInvoiceEntries, setInvoiceSettings, fitPreview } from "
 const CATEGORIES = ["PGI", "VKPI", "DA PGI", "DA VKPI", "Fahrt"];
 const NOT_A_FLIGHT = "Fahrt";
 
+// The fixed trip times of the day. A flight is booked against one of these
+// rather than a free clock time.
+const TRIP_TIMES = ["7:15", "8:15", "9:30", "10:40", "11:50", "13:00", "14:15", "15:30", "16:45"];
+
+// The trip that most recently started -- a flight is logged after landing.
+// Before the first trip of the day, the first one.
+function currentTrip(now) {
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  let pick = TRIP_TIMES[0];
+  for (const t of TRIP_TIMES) {
+    const [h, m] = t.split(":").map(Number);
+    if (h * 60 + m <= minutes) pick = t;
+  }
+  return pick;
+}
+
+function renderTripOptions() {
+  const select = document.getElementById("book-trip");
+  select.innerHTML = "";
+  for (const t of TRIP_TIMES) {
+    const option = document.createElement("option");
+    option.value = t;
+    option.textContent = t;
+    select.appendChild(option);
+  }
+}
+
 // Seed list only. The wings in use are kept in Firestore so a new one can be
 // added from the Log view without a deploy; this is what a browser starts from
 // before that document has been read, and what it falls back to if there is
@@ -485,7 +512,9 @@ function applyDefaultGlider() {
 
 // Sets the booking date/time field to now.
 function resetBookingDatetime() {
-  document.getElementById("book-datetime").value = localDatetimeValue(new Date());
+  const now = new Date();
+  document.getElementById("book-date").value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  document.getElementById("book-trip").value = currentTrip(now);
 }
 
 // One-tap booking: records the chosen category at the (adjustable) date/time,
@@ -493,7 +522,9 @@ function resetBookingDatetime() {
 async function bookCategory(category) {
   if (!currentUser) return;
   const remarkEl = document.getElementById("remark");
-  const dt = document.getElementById("book-datetime").value;
+  const date = document.getElementById("book-date").value;
+  const [th, tm] = document.getElementById("book-trip").value.split(":").map(Number);
+  const dt = date ? `${date}T${pad(th)}:${pad(tm)}` : "";
   const entry = {
     id: newId(),
     savedAt: dt ? new Date(dt).toISOString() : new Date().toISOString(),
@@ -1107,6 +1138,7 @@ async function init() {
 
   renderCategoryButtons();
   renderCategoryOptions();
+  renderTripOptions();
   renderGliderOptions();
   initInvoice({ saveSettings: saveInvoiceSettings });
   document.getElementById("glider").addEventListener("change", () => { gliderTouched = true; });
