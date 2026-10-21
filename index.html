@@ -376,8 +376,11 @@
       <!-- Quick booking: optional remark, then one tap on a category -->
       <div class="card" id="quickbook">
         <div class="field">
-          <label for="book-datetime">Date &amp; time</label>
-          <input id="book-datetime" type="datetime-local">
+          <label for="book-date">Date &amp; trip time</label>
+          <div class="glider-row">
+            <input id="book-date" type="date">
+            <select id="book-trip" aria-label="Trip time"></select>
+          </div>
         </div>
         <div class="field">
           <label for="glider">Glider</label>
