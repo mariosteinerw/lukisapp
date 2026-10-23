@@ -531,7 +531,8 @@ async function bookCategory(category) {
     id: newId(),
     savedAt: dt ? new Date(dt).toISOString() : new Date().toISOString(),
     category,
-    glider: document.getElementById("glider").value,
+    // Fahrt and Lead are not flown, so they carry no glider.
+    glider: NOT_FLIGHTS.includes(category) ? "" : document.getElementById("glider").value,
     remark: remarkEl.value.trim(),
     createdByUid: currentUser.uid,
     createdByEmail: currentUser.email || "",
@@ -576,11 +577,12 @@ async function onEditSubmit(event) {
     savedAt: new Date().toISOString(),
   };
   const dt = document.getElementById("edit-datetime").value;
+  const editCategory = document.getElementById("edit-category").value;
   const updated = {
     ...existing,
     savedAt: dt ? new Date(dt).toISOString() : existing.savedAt,
-    category: document.getElementById("edit-category").value,
-    glider: document.getElementById("edit-glider").value,
+    category: editCategory,
+    glider: NOT_FLIGHTS.includes(editCategory) ? "" : document.getElementById("edit-glider").value,
     remark: document.getElementById("edit-remark").value.trim(),
   };
   try {
@@ -757,7 +759,9 @@ function renderEntryRow(entry) {
   const cat = document.createElement("span");
   cat.className = "cat";
   const label = entry.category || "—";
-  cat.textContent = entry.glider ? `${label} · ${entry.glider}` : label;
+  // Fahrt and Lead show no glider, even on older bookings that saved one.
+  const showGlider = entry.glider && !NOT_FLIGHTS.includes(entry.category);
+  cat.textContent = showGlider ? `${label} · ${entry.glider}` : label;
 
   const actions = document.createElement("div");
   actions.className = "entry-actions";
