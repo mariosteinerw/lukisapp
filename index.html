@@ -52,6 +52,10 @@
       }
     }
     html, body { margin:0; padding:0; }
+    /* iOS Safari enlarges text it thinks is too small to read -- on the scaled-
+       down invoice preview that blew fonts up past their fixed line heights and
+       the lines piled on top of each other. Keep every font at its set size. */
+    html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
     body {
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
       background:var(--bg); color:var(--text); line-height:1.4;
@@ -315,6 +319,7 @@
     .qrbill .qr-h-p { font-size:8pt; font-weight:700; line-height:11pt; margin-top:2mm; }
     .qrbill .qr-v-p { font-size:10pt; line-height:11pt; }
     .qr-amount { display:flex; gap:6mm; margin-top:2mm; }
+    .qr-amount p { white-space:nowrap; }
     .qrbill .qr-accept { font-size:6pt; font-weight:700; text-align:right; margin-top:auto; }
     .qr-code { margin:5mm 0; }
     .qr-code svg { display:block; width:46mm; height:46mm; }

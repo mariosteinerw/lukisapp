@@ -59,6 +59,9 @@ const LINES = [
 // would mean importing across a module that already imports this one.
 const CATEGORY_ORDER = LINES.flatMap((line) => line.categories || []);
 
+// Billed on their own lines, but not flights -- left out of the flight total.
+const NOT_FLIGHT_CATEGORIES = ["Fahrt", "Lead"];
+
 const MONTH_NAMES = [
   "Januar", "Februar", "März", "April", "Mai", "Juni",
   "Juli", "August", "September", "Oktober", "November", "Dezember",
@@ -516,8 +519,12 @@ function dailyBreakdown(month) {
       days.set(key, day);
     }
     const category = entry.category || "—";
+    // Lead is a daily flat rate -- one per day, as on the invoice.
+    if (category === "Lead" && day.byCat.has("Lead")) continue;
     day.byCat.set(category, (day.byCat.get(category) || 0) + 1);
-    day.total += 1;
+    // Fahrt and Lead have their own columns but are not flights, so they stay
+    // out of the day's flight total.
+    if (!NOT_FLIGHT_CATEGORIES.includes(category)) day.total += 1;
   }
   return [...days.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
 }
@@ -559,7 +566,7 @@ function extractHtml(invoice) {
           <tr>
             <th>Datum</th>
             ${columns.map((c) => `<th class="num">${escapeHtml(c)}</th>`).join("")}
-            <th class="num col-total">Total</th>
+            <th class="num col-total">Flüge</th>
           </tr>
         </thead>
         <tbody>
